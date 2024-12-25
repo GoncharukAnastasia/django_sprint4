@@ -28,7 +28,7 @@ def get_paginator(request, items, num=10):
 def index(request):
     """Главная страница."""
     template = 'blog/index.html'
-    post_list = get_posts(Post.objects).order_by('-pub_date')
+    post_list = get_posts(Post.objects).order_by(Post._meta.ordering[0])
     page_obj = get_paginator(request, post_list)
     context = {'page_obj': page_obj}
     return render(request, template, context)
@@ -40,7 +40,7 @@ def post_detail(request, post_id):
     posts = get_object_or_404(Post, id=post_id)
     if request.user != posts.author:
         posts = get_object_or_404(get_posts(Post.objects), id=post_id)
-    comments = posts.comments.order_by('created_at')
+    comments = posts.comments.order_by(Comment._meta.ordering[0])
     form = CommentForm()
     context = {'post': posts, 'form': form, 'comments': comments}
     return render(request, template, context)
@@ -51,7 +51,7 @@ def category_posts(request, category_slug):
     template = 'blog/category.html'
     category = get_object_or_404(
         Category, slug=category_slug, is_published=True)
-    post_list = get_posts(category.posts).order_by('-pub_date')
+    post_list = get_posts(category.posts).order_by(Post._meta.ordering[0])
     page_obj = get_paginator(request, post_list)
     context = {'category': category, 'page_obj': page_obj}
     return render(request, template, context)
